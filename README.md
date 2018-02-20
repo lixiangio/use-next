@@ -27,7 +27,7 @@ ES5编写，不需要降级。
       }).use(function () {
          setTimeout(() => {
             test += 3
-            console.log(test)
+            console.log(test) // 输出 123
          }, 1000);
       })
 
