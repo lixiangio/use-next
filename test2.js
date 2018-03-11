@@ -3,17 +3,15 @@ let task = require('.')
 let taskFlow = new task()
 
 let test = ''
-taskFlow.use(function () {
+taskFlow.use(function (ctx, next) {
    test += 1
-   this.next()
+   next()
    test += 1
-}).use((ctx) => {
+}).use((ctx, next) => {
    test += 2
    ctx.next()
    test += 2
-}).use((ctx) => {
-   test += 3
-   ctx.next()
+}).use((ctx, next) => {
    test += 3
 })
 

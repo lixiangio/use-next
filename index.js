@@ -1,34 +1,22 @@
-// class task {
-//    constructor() {
-//       this.middleware = []
-//       this.index = 0
-//    }
-//    use(fn) {
-//       this.middleware.push(fn)
-//       return this
-//    }
-//    next() {
-//       let fn = this.middleware[++this.index]
-//       fn && (fn.prototype ? fn.call(this, this) : fn(this))
-//    }
-//    start() {
-//       this.middleware[0].call(this, this)
-//    }
-// }
-
-function task() {
-   this.middleware = []
-   this.index = 0
-   this.use = function (fn) {
+class task {
+   constructor() {
+      this.middleware = []
+      this.index = 0
+   }
+   use(fn) {
       this.middleware.push(fn)
       return this
    }
-   this.next = function () {
+   async next() {
       let fn = this.middleware[++this.index]
-      fn && (fn.prototype ? fn.call(this, this) : fn(this))
+      await fn(this, async () => {
+         await this.next()
+      })
    }
-   this.start = function () {
-      this.middleware[0].call(this, this)
+   start() {
+      this.middleware[0](this, async () => {
+         await this.next()
+      })
    }
 }
 

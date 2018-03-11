@@ -1,33 +1,39 @@
-多层嵌套函数的优雅写法，使用声明式函数链将嵌套结构代码扁平化，通过next方法实现灵活的流程控制。
-
-ES5编写，不需要降级。
-
+嵌套函数扁平化，使用中间件函数链代替异步嵌套函数，通过next方法进行流程控制。
 
 ### Installation
 
       npm install use-next
 
-### 使用方法
+### 使用示例
 
       let useNext = require('use-next')
 
       let taskFlow = new useNext()
 
       let test = ''
-      taskFlow.use(function () {
+
+      taskFlow.use(function (ctx, next) {
          setTimeout(() => {
             test += 1
-            this.next()
+            console.log(test)
+            next()
          }, 1000);
-      }).use(function () {
+      }).use(function (ctx, next) {
          setTimeout(() => {
             test += 2
-            this.next()
+            console.log(test)
+            next()
          }, 1000);
-      }).use(function () {
+      }).use(function (ctx, next) {
          setTimeout(() => {
             test += 3
-            console.log(test) // 输出 123
+            console.log(test)
+            next()
+         }, 1000);
+      }).use(function (ctx) {
+         setTimeout(() => {
+            test += 4
+            console.log(test)
          }, 1000);
       })
 

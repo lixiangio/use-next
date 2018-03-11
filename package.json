@@ -4,7 +4,8 @@
   "description": "针对嵌套回调函数的优雅解决方案，使用声明式函数链将多层嵌套结构代码转为水平结构，通过next方法递进。",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+   "test1": "nodemon test1.js",
+   "test2": "nodemon test2.js"
   },
   "author": "",
   "license": "ISC",
