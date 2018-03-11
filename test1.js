@@ -8,19 +8,19 @@ taskFlow.use(function (ctx, next) {
       test += 1
       console.log(test)
       next()
-   }, 1000);
+   }, 2500);
 }).use(function (ctx, next) {
    setTimeout(() => {
       test += 2
       console.log(test)
       next()
-   }, 1000);
+   }, 2000);
 }).use(function (ctx, next) {
    setTimeout(() => {
       test += 3
       console.log(test)
       next()
-   }, 1000);
+   }, 1500);
 }).use(function (ctx) {
    setTimeout(() => {
       test += 4
