@@ -20,8 +20,8 @@
 [ middleware [ middleware [ controller ] middleware ] middleware ]
 
 // 跳跃式执行
-       _________________________next________________________
-      |                                                     |
+       ___next___     ______________________    ____next____
+      |          |   |                      |  |            |
 [ middleware [ middleware [ controller ] middleware ] middleware ]
 ```
 
