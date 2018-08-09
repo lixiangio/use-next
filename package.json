@@ -1,7 +1,7 @@
 {
   "name": "use-next",
   "version": "1.1.0",
-  "description": "针对嵌套回调函数的优雅解决方案，使用声明式函数链将多层嵌套结构代码转为水平结构，通过next方法递进。",
+  "description": "使用嵌套中间件风格的异步队列流程控制器",
   "main": "index.js",
   "scripts": {
    "test1": "nodemon test1.js",

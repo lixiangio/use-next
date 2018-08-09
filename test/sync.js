@@ -1,4 +1,4 @@
-let task = require('.')
+let task = require('..')
 
 let taskFlow = new task()
 

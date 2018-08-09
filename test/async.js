@@ -1,6 +1,8 @@
-let task = require('.')
+let task = require('..')
 
 let taskFlow = new task()
+
+taskFlow.x = "ctx扩展";
 
 let test = ''
 taskFlow.use(function (ctx, next) {
@@ -10,6 +12,7 @@ taskFlow.use(function (ctx, next) {
       next()
    }, 2500);
 }).use(function (ctx, next) {
+   console.log(ctx.x);
    setTimeout(() => {
       test += 2
       console.log(test)

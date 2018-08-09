@@ -1,22 +1,28 @@
 class task {
    constructor() {
-      this.middleware = []
       this.index = 0
+      this.middlewares = []
    }
    use(fn) {
-      this.middleware.push(fn)
+      this.middlewares.push(fn)
       return this
    }
-   async next() {
-      let fn = this.middleware[++this.index]
-      await fn(this, async () => {
-         await this.next()
-      })
+   async start() {
+      this.index = -1
+      await this.next()
    }
-   start() {
-      this.middleware[0](this, async () => {
-         await this.next()
-      })
+   async next() {
+      let func = this.middlewares[this.index + 1]
+      if (func) {
+         let lock = true
+         await func(this, () => {
+            if (lock) {
+               this.index++
+               lock = false
+               this.next()
+            }
+         })
+      }
    }
 }
 
