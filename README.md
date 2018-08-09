@@ -15,12 +15,12 @@
 ```js
 // 全部执行
 
-       ___next___     ___next___   __next___    ____next____
+       ___next___     ___next____  _________    ____________
       |          |   |           |          |  |            |
 [ middleware [ middleware [ controller ] middleware ] middleware ]
 
-// 跳跃式执行
-       ___next___     ______________________    ____next____
+// 跳跃执行
+       ___next___     ______________________    ____________
       |          |   |                      |  |            |
 [ middleware [ middleware [ controller ] middleware ] middleware ]
 ```
