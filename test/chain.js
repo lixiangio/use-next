@@ -2,10 +2,6 @@ let task = require('..')
 
 let taskFlow = new task()
 
-
-
-
-
 let chain = {
    sleep(time) {
       taskFlow.use(function (ctx, next) {

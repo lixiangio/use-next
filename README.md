@@ -1,13 +1,22 @@
-<!-- 使用嵌套中间件风格的异步队列流程控制器。 -->
+<!-- Koa风格的嵌套中间件实现，用于异步队列流程控制 -->
 
-中间件设计结构可分为水平和嵌套两种，use-next采用圈模型的嵌套结构，相比水平结构，嵌套结构支持更加精细的流程控制。
+中间件设计结构可分为水平和嵌套两种，相比水平结构，嵌套结构可实现更加精细的流程控制。
+
+use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹特征，使其拥有更加灵活的后置处理能力。
 
 ### 水平结构
 
 ```js
-       _______________________________________________________________
-      |           |        |           |          |       |           |
-[ middleware ]  after   before  [ middleware ]  after   before  [ controller ]
+// 全部执行
+       ______________________________________________
+      |               |          |       |           |
+[ middleware ]  [ middleware ] before [ controller ] after 
+
+
+// 部分执行
+       ________________________________
+      |           |        |           |
+[ middleware ]  [ middleware ] before [ controller ] after 
 ```
 
 ### 嵌套结构
@@ -20,6 +29,7 @@
 [ middleware [ middleware [ controller ] middleware ] middleware ]
 
 // 跳跃执行
+
        ___next___     ______________________    ____________
       |          |   |                      |  |            |
 [ middleware [ middleware [ controller ] middleware ] middleware ]
