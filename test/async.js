@@ -1,36 +1,32 @@
-let task = require('..')
+let useNext = require('..')
 
-let taskFlow = new task()
+let usenext = new useNext({ data: '' })
 
-taskFlow.x = "ctx扩展";
-
-let test = ''
-taskFlow.use(function (ctx, next) {
+usenext.use(function (ctx, next) {
    setTimeout(() => {
-      test += 1
-      console.log(test)
+      ctx.data += 1
+      console.log(ctx.data)
       next()
    }, 2500);
 }).use(function (ctx, next) {
-   console.log(ctx.x);
    setTimeout(() => {
-      test += 2
-      console.log(test)
+      ctx.data += 2
+      console.log(ctx.data)
       next()
    }, 2000);
 }).use(function (ctx, next) {
    setTimeout(() => {
-      test += 3
-      console.log(test)
+      ctx.data += 3
+      console.log(ctx.data)
       next()
    }, 1500);
 }).use(function (ctx) {
    setTimeout(() => {
-      test += 4
-      console.log(test)
+      ctx.data += 4
+      console.log(ctx.data)
    }, 1000);
 })
 
-taskFlow.start()
+usenext.start()
 
 

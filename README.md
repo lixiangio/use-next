@@ -14,8 +14,8 @@ use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹
 
 
 // 部分执行
-       ________________________________
-      |           |        |           |
+       ___________________________
+      |           |        |      |
 [ middleware ]  [ middleware ] before [ controller ] after 
 ```
 
@@ -51,16 +51,67 @@ async/await、promise只负责让异步代码同步执行，并不能实现业�
 
 * 不支持async/await、promise的IE浏览器异步解决方案
 
-### 使用示例
+## 启动模式
+
+启动模式分为自动模式和手动模式。由于两者通常是二选一，因此没有做集成处理。
+
+默认引用为手动模式，需要用usenext.start()触发执行中间件队列。
+
+自动模式需要使用require('use-next/auto')，在调用usenext.use()时动态执行。
+
+```js
+let useNext  = require('use-next/auto')
+let usenext = new useNext()
+
+// 包装后效果，完整示例请参考下面的仿Promise异步队列示例
+chain.url('https://www.baidu.com/')
+   .find('#kw')
+   .sleep(1000)
+   .val('hello')
+   .submit()
+   .title()
+   .sleep(1500)
+   .close()
+```
+
+
+## API
+
+### class useNext(mixin)
+
+* mixin `Object` 实例混合选项，用于this、ctx属性扩展
+
+### this.middlewares
+
+中间件队列
+
+### this.index
+
+当前使用的中间件序列id
+
+### this.use(func)
+
+* func(ctx, next) `Function` 异步函数
+
+    * ctx `Object` useNext实例，指向this
+
+    * next `Function` 切换至下一个中间件
+
+### this.start()
+
+手动触发useNext实例执行
+
+
+## 基础示例
 
 ```js
 let useNext = require('use-next')
 
-let taskFlow = new useNext()
+let usenext = new useNext()
 
 let test = ''
 
-taskFlow.use(function (ctx, next) {
+usenext.use(function (ctx, next) {
    setTimeout(() => {
       test += 1
       console.log(test)
@@ -76,14 +127,134 @@ taskFlow.use(function (ctx, next) {
    setTimeout(() => {
       test += 3
       console.log(test)
-      next()
    }, 1500);
-}).use(function (ctx) {
-   setTimeout(() => {
-      test += 4
-      console.log(test)
-   }, 1000);
 })
 
-taskFlow.start()
+usenext.start()
+```
+
+## 仿Promise风格异步队列
+
+```js
+let useNext = require('use-next')
+
+let usenext = new useNext()
+
+let chain = {
+   url(url) {
+      usenext.use(function (ctx, next) {
+         setTimeout(() => {
+            ctx.data = `打开${url}`
+            next()
+         }, 3000);
+      })
+      return this
+   },
+   find(selector) {
+      usenext.use(function (ctx, next) {
+         setTimeout(() => {
+            ctx.data = `查找${selector}元素`
+            // ctx.error = '未找到${selector}元素'
+            next()
+         }, 2000);
+      })
+      return this
+   },
+   val(text) {
+      usenext.use(function (ctx, next) {
+         ctx.data = `输入关键词"${text}"`
+         next()
+      })
+      return this
+   },
+   submit() {
+      usenext.use(function (ctx, next) {
+         setTimeout(() => {
+            ctx.data = `提交搜索`
+            next()
+         }, 500);
+      })
+      return this
+   },
+   title() {
+      usenext.use(function (ctx, next) {
+         ctx.data = '获取标题："hello_百度搜索"'
+         next()
+      })
+      return this
+   },
+   close() {
+      usenext.use(function (ctx, next) {
+         setTimeout(() => {
+            ctx.data = '关闭网页'
+         }, 100);
+      })
+      return this
+   },
+   then(func) {
+      usenext.use(function (ctx, next) {
+         if (!ctx.error) {
+            func(ctx.data)
+         }
+         next()
+      })
+      return this
+   },
+   catch(func) {
+      usenext.use(function (ctx, next) {
+         if (ctx.error) {
+            func(ctx.error)
+         } else {
+            next()
+         }
+      })
+      return this
+   },
+   sleep(time) {
+      usenext.use(function (ctx, next) {
+         setTimeout(() => {
+            ctx.data = `等待${time}毫秒`
+            next()
+         }, time);
+      })
+      return this
+   },
+}
+
+
+chain.url('https://www.baidu.com/')
+   .then(function (data) {
+      console.log(data)
+   })
+   .find('#kw')
+   .then(function (data) {
+      console.log(data)
+   })
+   .catch(function (error) {
+      console.log(error)
+   })
+   .sleep(1000)
+   .then(function (data) {
+      console.log(data)
+   })
+   .val('hello')
+   .then(function (data) {
+      console.log(data)
+   })
+   .submit()
+   .then(function (data) {
+      console.log(data)
+   })
+   .title()
+   .then(function (data) {
+      console.log(data)
+   })
+   .sleep(1500)
+   .then(function (data) {
+      console.log(data)
+   })
+   .close()
+   .then(function (data) {
+      console.log(data)
+   })
 ```

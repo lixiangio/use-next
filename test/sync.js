@@ -1,20 +1,19 @@
-let task = require('..')
+let useNext = require('..')
 
-let taskFlow = new task()
+let usenext = new useNext({ test: 0 })
 
-let test = ''
-taskFlow.use(function (ctx, next) {
-   test += 1
+usenext.use(function (ctx, next) {
+   console.log(ctx.test)
    next()
-   test += 1
+   console.log(ctx.test)
 }).use((ctx, next) => {
-   test += 2
-   ctx.next()
-   test += 2
+   ctx.test += 2
+   console.log(ctx.test)
+   next()
+   ctx.test += 2
 }).use((ctx, next) => {
-   test += 3
+   ctx.test += 3
+   console.log(ctx.test)
 })
 
-taskFlow.start()
-
-console.log(test)
+usenext.start()

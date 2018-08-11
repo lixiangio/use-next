@@ -1,21 +1,27 @@
-class task {
-   constructor() {
+/**
+ * 预定义中间件（静态）
+ * 在所有中间件就绪后，通过start()启动执行
+ */
+class useNext {
+   constructor(mixin) {
+      Object.assign(this, mixin)
       this.index = 0
       this.middlewares = []
    }
-   use(fn) {
-      this.middlewares.push(fn)
+   use(func) {
+      if (!(func instanceof Function)) return
+      this.middlewares.push(func)
       return this
    }
-   async start() {
+   start() {
       this.index = -1
-      await this.next()
+      this.next()
    }
-   async next() {
+   next() {
       let func = this.middlewares[this.index + 1]
       if (func) {
          let lock = true
-         await func(this, () => {
+         func(this, () => {
             if (lock) {
                this.index++
                lock = false
@@ -26,4 +32,4 @@ class task {
    }
 }
 
-module.exports = task
+module.exports = useNext
