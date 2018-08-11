@@ -8,12 +8,14 @@ use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹
 
 ```js
 // 全部执行
+
        ________________ _________ ___________ _________
       |                |         |           |         |
 [ middleware ]  [ middleware ] before [ controller ] after 
 
 
 // 部分执行
+
        ________________ __________
       |                |          |
 [ middleware ]  [ middleware ] before [ controller ] after 
