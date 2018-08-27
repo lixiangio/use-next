@@ -52,29 +52,52 @@ async/await、promise只负责让异步代码同步执行，并不能实现业�
 在使用Promise时一个Promise只能处理一个异步任务，多个异步队列需要搭配Promise.all()或Promise.race()来使用，否则又会面临嵌套问题，这其实是一种糟糕的实现方式。
 
 ```js
+// 不使用async/await
 let p1 = new Promise(function(resolve, reject){
-    resolve(data)
+    resolve(1)
 })
 
 let p2 = new Promise(function(resolve, reject){
-    resolve(data)
+    resolve(1)
 })
 
 Promise.all([p1, p2]).then(data => {
   console.log(data);
 });
+
+
+// 使用async/await
+async function run() {
+
+    let p1 = await new Promise(function(resolve, reject){
+        resolve(1)
+    })
+
+    let p2 = await new Promise(function(resolve, reject){
+        resolve(1)
+    })
+
+}
+
+run()
 ```
 
 #### use-next
 
 在use-next中，你可以直接链式声明多个异步函数，通过next()方法可以选择在任意节点继续执行还是中断，同时支持后置处理功能。
 
+另外use-next可以在多个异步队列中共享同一个Promise状态，仅使用一个Promise即可实现通常需要多个Promise才能完成的任务。
+
 ```js
-usenext.use(function (ctx, next) {
-   next()
-}).use(function (ctx, next) {
-   next()
-})
+async function run() {
+
+    await usenext.use(function (ctx, next) {
+      next()
+    }).use(function (ctx, next) {
+      ctx.reject(1)
+    })
+
+}
 ```
 
 
@@ -94,25 +117,74 @@ usenext.use(function (ctx, next) {
 
 #### 手动模式
 
-默认引用为手动模式，通过预定义中间件，使用usenext.start()方法启动中间件队列。
+默认引用为手动模式，通过预定义中间件，使用usenext.start()方法启动中间件队列，不支持Promise。
+
+#### 示例
+
+```js
+let useNext = require('use-next')
+
+let usenext = new useNext()
+
+usenext.use(function (ctx, next) {
+   setTimeout(() => {
+      console.log(1)
+      next()
+   }, 1000);
+}).use((ctx, next) => {
+   setTimeout(() => {
+      console.log(2)
+      next()
+   }, 1000);
+}).use((ctx,next) => {
+   setTimeout(() => {
+      console.log(3)
+      next()
+   }, 1000);
+}).then(function (data) {
+   console.error('then', data)
+}).catch(function (error) {
+   console.error('catch', error)
+})
+
+usenext.start()
+```
 
 #### 自动模式
 
-自动模式下会即时启动，需要引用require('use-next/auto')。
+自动模式下会即时启动，需要引用require('use-next/auto')，支持Promise。
 
 ```js
 let useNext  = require('use-next/auto')
+
 let usenext = new useNext()
 
-// 包装后效果，完整示例请参考下面的仿Promise异步队列示例
-chain.url('https://www.baidu.com/')
-   .find('#kw')
-   .sleep(1000)
-   .val('hello')
-   .submit()
-   .title()
-   .sleep(1500)
-   .close()
+async function run() {
+
+   await usenext.use(function (ctx, next) {
+      setTimeout(() => {
+         console.log(1)
+         next()
+      }, 1000);
+   }).use((ctx, next) => {
+      setTimeout(() => {
+         console.log(2)
+         next()
+      }, 1000);
+   }).use((ctx,next) => {
+      setTimeout(() => {
+         console.log(3)
+         next()
+      }, 1000);
+   }).then(function (data) {
+      console.error('then', data)
+   }).catch(function (error) {
+      console.error('catch', error)
+   })
+
+   console.log(4)
+
+}
 ```
 
 
@@ -143,38 +215,7 @@ chain.url('https://www.baidu.com/')
 手动触发useNext实例执行
 
 
-## 基础示例
-
-```js
-let useNext = require('use-next')
-
-let usenext = new useNext()
-
-let test = ''
-
-usenext.use(function (ctx, next) {
-   setTimeout(() => {
-      test += 1
-      console.log(test)
-      next()
-   }, 2500);
-}).use(function (ctx, next) {
-   setTimeout(() => {
-      test += 2
-      console.log(test)
-      next()
-   }, 2000);
-}).use(function (ctx, next) {
-   setTimeout(() => {
-      test += 3
-      console.log(test)
-   }, 1500);
-})
-
-usenext.start()
-```
-
-## 仿Promise风格异步函数链
+### 仿Promise风格异步函数链
 
 ```js
 let useNext = require('use-next')
