@@ -9,16 +9,16 @@ use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹
 ```js
 // 全部执行
 
-       ________________ _________ ___________ _________
-      |                |         |           |         |
-[ middleware ]  [ middleware ] before [ controller ] after 
+          ________________ ___________ _________ __________
+         |                |           |         |          |
+[ middleware A ]  [ middleware B ] before [ controller ] after 
 
 
 // 部分执行
 
-       ________________ __________
-      |                |          |
-[ middleware ]  [ middleware ] before [ controller ] after 
+          ________________ ___________
+         |                |           |
+[ middleware A ]  [ middleware B ] before [ controller ] after 
 ```
 
 ### 嵌套结构
@@ -26,15 +26,15 @@ use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹
 ```js
 // 全部执行
 
-       ___next___     ___next____ __________    ____________
-      |          |   |           |          |  |            |
-[ middleware [ middleware [ controller ] middleware ] middleware ]
+         ____next____    ___next___     _________    ____________
+        |            |  |          |   |         |  |            |
+[ middleware A [ middleware B [ controller ] middleware B ] middleware A ]
 
 // 跳跃执行
 
-       ___next___     ______________________    ____________
-      |          |   |                      |  |            |
-[ middleware [ middleware [ controller ] middleware ] middleware ]
+         ____next____    ________________________    ____________
+        |            |  |                        |  |            |
+[ middleware A [ middleware B [ controller ] middleware B ] middleware A ]
 ```
 
 ### Install
@@ -45,21 +45,60 @@ use-next采用圈模型的嵌套结构，由于圈模型中间件的层层包裹
 
 async/await、promise只负责让异步代码同步执行，并不能实现业务流程控制、代码分离、代码规范和复用等功能。中间件除了能实异步转同步的需求外，同时还拥有很好的扩展性。
 
-## 应用场景
+### 对比Promise
+
+#### Promise
+
+在使用Promise时一个Promise只能处理一个异步任务，多个异步队列需要搭配Promise.all()或Promise.race()来使用，否则又会面临嵌套问题，这其实是一种糟糕的实现方式。
+
+```js
+let p1 = new Promise(function(resolve, reject){
+    resolve(data)
+})
+
+let p2 = new Promise(function(resolve, reject){
+    resolve(data)
+})
+
+Promise.all([p1, p2]).then(data => {
+  console.log(data);
+});
+```
+
+#### use-next
+
+在use-next中，你可以直接链式声明多个异步函数，通过next()方法可以选择在任意节点继续执行还是中断，同时支持后置处理功能。
+
+```js
+usenext.use(function (ctx, next) {
+   next()
+}).use(function (ctx, next) {
+   next()
+})
+```
+
+
+### 应用场景
 
 * 多层异步流程控制，如koa
 
-* 实现异步函数链，如macaca脚本的函数链
+* 实现自定义异步函数链，如macaca脚本的函数链
 
-* 不支持async/await、promise的IE浏览器异步解决方案
+* 代替Promise处理多个异步队列
 
-## 启动模式
+* 不支持async/await、promise的异步降级方案
+
+### 启动模式
 
 启动模式分为自动模式和手动模式。由于两者通常是二选一，因此没有做集成处理。
 
-默认引用为手动模式，需要用usenext.start()触发执行中间件队列。
+#### 手动模式
 
-自动模式需要使用require('use-next/auto')，在调用usenext.use()时动态执行。
+默认引用为手动模式，通过预定义中间件，使用usenext.start()方法启动中间件队列。
+
+#### 自动模式
+
+自动模式下会即时启动，需要引用require('use-next/auto')。
 
 ```js
 let useNext  = require('use-next/auto')
@@ -95,7 +134,7 @@ chain.url('https://www.baidu.com/')
 
 * func(ctx, next) `Function` 异步函数
 
-    * ctx `Object` useNext实例，指向this
+    * ctx `Object` useNext实例，指向this，不直接使用函数this的原因是为了兼容箭头函数。
 
     * next `Function` 切换至下一个中间件
 
@@ -135,7 +174,7 @@ usenext.use(function (ctx, next) {
 usenext.start()
 ```
 
-## 仿Promise风格异步队列
+## 仿Promise风格异步函数链
 
 ```js
 let useNext = require('use-next')

@@ -11,7 +11,7 @@ usenext.use(function (ctx, next) {
    console.log(ctx.test)
    next()
    ctx.test += 2
-}).use((ctx, next) => {
+}).use((ctx) => {
    ctx.test += 3
    console.log(ctx.test)
 })
