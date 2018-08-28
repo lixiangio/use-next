@@ -193,9 +193,9 @@ async function run() {
 
 ## API
 
-### class useNext(mixin)
+### class useNext(ctx)
 
-* mixin `Object` 实例混合选项，用于this、ctx属性扩展
+* ctx `Object` ctx上下文扩展
 
 ### this.middlewares
 
@@ -207,9 +207,9 @@ async function run() {
 
 ### this.use(func)
 
-* func(ctx, next) `Function` 异步函数
+* func(ctx, next) `Function` 回调函数，支持async函数和箭头函数
 
-    * ctx `Object` useNext实例，指向this，不直接使用函数this的原因是为了兼容箭头函数。
+    * ctx `Object` 异步执行上下文
 
     * next `Function` 切换至下一个中间件
 
