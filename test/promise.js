@@ -1,32 +1,32 @@
 let useNext = require('../promise')
 
-let usenext = new useNext()
+let usenext = new useNext({ body: 0 })
 
 async function run() {
 
-   await usenext.use(function (ctx, next) {
+   let body = await usenext.use(function (ctx, next) {
       setTimeout(() => {
-         console.log(1)
+         console.log(ctx.body)
+         ctx.body = 1
          next()
       }, 1000);
    }).use((ctx, next) => {
       setTimeout(() => {
-         console.log(2)
+         console.log(ctx.body)
+         ctx.body = 2
          next()
       }, 1000);
-   }).use((ctx,next) => {
+   }).use((ctx) => {
       setTimeout(() => {
-         console.log(3)
-         next()
-         // ctx.reject(3)
+         console.log(ctx.body)
+         ctx.body = 3
+         ctx.resolve(ctx.body)
       }, 1000);
-   }).then(function (data) {
-      console.error('then', data)
    }).catch(function (error) {
-      console.error('catch', error)
+      console.error("error", error)
    })
 
-   console.log(4)
+   console.log(body)
 
 }
 

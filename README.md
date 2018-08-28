@@ -86,15 +86,17 @@ run()
 
 在use-next中，你可以直接链式声明多个异步函数，通过next()方法可以选择在任意节点继续执行还是中断，同时支持后置处理功能。
 
-另外use-next可以在多个异步队列中共享同一个Promise状态，仅使用一个Promise即可实现通常需要多个Promise才能完成的任务。
+自动模式下会隐式创建一个Promise实例，在多个异步队列中共享状态，仅使用单个Promise即可实现通常需要多个Promise才能完成的任务。
 
 ```js
 async function run() {
 
     await usenext.use(function (ctx, next) {
-      next()
+       next()
     }).use(function (ctx, next) {
-      ctx.reject(1)
+       next()
+    }).use(function (ctx, next) {
+       next()
     })
 
 }
@@ -161,28 +163,29 @@ let usenext = new useNext()
 
 async function run() {
 
-   await usenext.use(function (ctx, next) {
+   let body = await usenext.use(function (ctx, next) {
       setTimeout(() => {
-         console.log(1)
+         console.log(ctx.body)
+         ctx.body = 1
          next()
       }, 1000);
    }).use((ctx, next) => {
       setTimeout(() => {
-         console.log(2)
+         console.log(ctx.body)
+         ctx.body = 2
          next()
       }, 1000);
-   }).use((ctx,next) => {
+   }).use((ctx, next) => {
       setTimeout(() => {
-         console.log(3)
-         next()
+         console.log(ctx.body)
+         ctx.body = 3
+         ctx.resolve(ctx.body)
       }, 1000);
-   }).then(function (data) {
-      console.error('then', data)
    }).catch(function (error) {
-      console.error('catch', error)
+      console.error("error", error)
    })
 
-   console.log(4)
+   console.log(body)
 
 }
 ```

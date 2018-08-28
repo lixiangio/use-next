@@ -5,24 +5,25 @@
 class useNext {
    /**
     * 
-    * @param {Object} mixin 混合对象，优先级低于内置对象
+    * @param {Object} mixin ctx混合扩展
     */
    constructor(mixin = {}) {
 
-      Object.assign(this, mixin)
       this.index = -1
       this.useCount = -1
       this.middlewares = []
       this.sync = true
+      this.ctx = { body: undefined }
+      Object.assign(this.ctx, mixin)
 
       let promise = new Promise((resolve, reject) => {
-         this.resolve = resolve
-         this.reject = reject
+         this.ctx.resolve = resolve
+         this.ctx.reject = reject
       })
 
       Object.assign(promise, this)
 
-      for (let name of ['use', 'start', 'next']) {
+      for (let name of ['use', 'next']) {
          promise[name] = this[name]
       }
 
@@ -57,7 +58,7 @@ class useNext {
       let func = this.middlewares[this.index + 1]
       if (func) {
          let lock = true
-         await func(this, () => {
+         await func(this.ctx, () => {
             if (lock) {
                lock = false
                this.index++
@@ -67,8 +68,6 @@ class useNext {
                }
             }
          })
-      } else {
-         this.resolve(this)
       }
    }
 }
